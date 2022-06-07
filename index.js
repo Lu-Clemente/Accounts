@@ -59,7 +59,7 @@ const operation = () => {
                 'Create account',
                 'Check balance',
                 'Deposit',
-                'Draw',
+                'Withdraw',
                 'Sign out'
             ]
         }
@@ -71,6 +71,18 @@ const operation = () => {
                 case 'Create account':
                     createAccount();
                     break;
+                case 'Check balance':
+                    createAccount();
+                    break;
+                case 'Deposit':
+                    createAccount();
+                    break;
+                case 'Withdraw':
+                    createAccount();
+                    break;
+                case 'Sign out':
+                    console.log(chalk.bgBlue.black('Thank you for using Accounts'));
+                    process.exit();
                 default:
                     return;
             }
