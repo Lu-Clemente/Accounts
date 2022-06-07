@@ -6,6 +6,49 @@ const chalk = require('chalk');
 const fs = require('fs');
 
 // Functions
+
+verifyAccountExistence = (accountName) => {
+    if (!fs.existsSync(`accounts/${accountName}.json`)) {
+        console.log(chalk.bgRed.black('This account does not exist'));
+        return false;
+    } else {
+        return true;
+    }
+}
+
+const getAccount = () => {
+    const accountJSON = fs.readFileSync(
+        `accounts/${accountName}.json`,
+        {
+            encoding: 'utf8',
+            flag: 'r'
+        }
+    )
+
+    return JSON.parse(accountJSON);
+}
+
+const addAmount = (accountName, amount) => {
+    const accountData = getAccount(accountName);
+
+    if (!amount) {
+        console.log(chalk.bgRed.white('Invalid amount. Try again later!'));
+        return handleDeposit();
+    }
+
+    accountData.balance = parseFloat(amount) + parseFloat(accountData.balance);
+
+    fs.writeFileSync(
+        `accounts/${accountName}.json`,
+        JSON.stringify(accountData),
+        (err) => {
+            console.log(err);
+        }
+    )
+
+    console.log(chalk.bgGreen.black(`Withdraw successfully compled. Amount deposited: $${amount}`));
+}
+
 const buildAccount = () => {
     inquirer.prompt([
         {
@@ -42,11 +85,48 @@ const buildAccount = () => {
         })
 }
 
-const createAccount = () => {
+const handleCreateAccount = () => {
     console.log(chalk.bgGreen.black('Thank you for choosing us!'));
     console.log(chalk.green("Follow the next steps to create an account"));
 
     buildAccount();
+}
+
+const handleDeposit = () => {
+    inquirer.prompt([
+        {
+            name: 'accountName',
+            message: "Account's name: "
+        }
+    ])
+        .then((answer) => {
+            const accountName = answer['accountName'];
+
+            if (!verifyAccountExistence(accountName)) {
+                return handleDeposit();
+            }
+
+            inquirer.prompt([
+                {
+                    name: 'amount',
+                    message: "Amount to be cashed: "
+                }
+            ])
+                .then((answer) => {
+                    const amount = answer['amount'];
+                    addAmount(accountName, amount);
+                })
+                .catch((err) => {
+                    console.log("[ERROR] " + err);
+                })
+                .finally(() => {
+                    operation();
+                })
+
+        })
+        .catch((err) => {
+            console.log("[ERROR] " + err);
+        })
 }
 
 const operation = () => {
@@ -69,13 +149,13 @@ const operation = () => {
 
             switch (action) {
                 case 'Create account':
-                    createAccount();
+                    handleCreateAccount();
                     break;
                 case 'Check balance':
                     createAccount();
                     break;
                 case 'Deposit':
-                    createAccount();
+                    handleDeposit();
                     break;
                 case 'Withdraw':
                     createAccount();
