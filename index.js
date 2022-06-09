@@ -46,7 +46,34 @@ const addAmount = (accountName, amount) => {
         }
     )
 
-    console.log(chalk.bgGreen.black(`Withdraw successfully compled. Amount deposited: $${amount}`));
+    console.log(chalk.bgGreen.black(`Deposit successfully compled. Amount deposited: $${amount}`));
+}
+
+const removeAmount = (accountName, amount) => {
+    const accountData = getAccount(accountName);
+
+    if (!amount) {
+        console.log(chalk.bgRed.white('Invalid amount. Try again later!'));
+        return handleWithdraw();
+    }
+
+    if (accountData.balance < amount) {
+        console.log(chalk.bgRed.white('Unavaible amount in account.'));
+        return handleWithdraw();
+    }
+
+    accountData.balance = parseFloat(accountData.balance) - parseFloat(amount);
+    fs.writeFileSync(
+        `accounts/${accountName}.json`,
+        JSON.stringify(accountData),
+        (err) => {
+            console.log(err)
+        }
+    )
+
+    console.log(chalk.green(`Cash withdrawn: $${amount}`));
+
+    operation();
 }
 
 const buildAccount = () => {
@@ -92,6 +119,39 @@ const handleCreateAccount = () => {
     buildAccount();
 }
 
+const handleWithdraw = () => {
+    inquirer.prompt([
+        {
+            name: 'accountName',
+            message: "Account's name: "
+        }
+    ])
+        .then((answer) => {
+            const accountName = answer['accountName'];
+
+            if (!verifyAccountExistence(accountName)) {
+                return handleWithdraw();
+            }
+
+            inquirer.prompt([
+                {
+                    name: 'amount',
+                    message: 'How much do you want to withdraw?'
+                }
+            ])
+                .then((answer) => {
+                    const amount = answer['amount'];
+                    removeAmount(accountName, amount);
+                })
+                .catch((err) => {
+                    console.log("[ERROR5] " + err);
+                })
+        })
+        .catch((err) => {
+            console.log(['[ERROR4] ' + err]);
+        })
+}
+
 const handleBalanceCheck = () => {
     inquirer.prompt([
         {
@@ -99,22 +159,22 @@ const handleBalanceCheck = () => {
             message: "Account's name: "
         }
     ])
-    .then((answer) => {
-        const accountName = answer['accountName'];
+        .then((answer) => {
+            const accountName = answer['accountName'];
 
-        if (!verifyAccountExistence(accountName)) {
-            return handleBalanceCheck();
-        }
+            if (!verifyAccountExistence(accountName)) {
+                return handleBalanceCheck();
+            }
 
-        const accountData = getAccount(accountName);
+            const accountData = getAccount(accountName);
 
-        console.log(chalk.bgBlue.black(`Account's balance: $${accountData.balance}`));
+            console.log(chalk.bgBlue.black(`Account's balance: $${accountData.balance}`));
 
-        operation();
-    })
-    .catch((err) => {
-        console.log(['[ERROR3] ' + err]);
-    })
+            operation();
+        })
+        .catch((err) => {
+            console.log(['[ERROR3] ' + err]);
+        })
 }
 
 const handleDeposit = () => {
@@ -137,7 +197,7 @@ const handleDeposit = () => {
                     message: "Amount to be cashed:"
                 }
             ])
-                .then((ans) => {   
+                .then((ans) => {
                     const amount = ans['amount'];
                     addAmount(accountName, amount);
                 })
@@ -183,7 +243,7 @@ const operation = () => {
                     handleDeposit();
                     break;
                 case 'Withdraw':
-                    createAccount();
+                    handleWithdraw();
                     break;
                 case 'Sign out':
                     console.log(chalk.bgBlue.black('Thank you for using Accounts'));
