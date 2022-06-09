@@ -16,7 +16,7 @@ verifyAccountExistence = (accountName) => {
     }
 }
 
-const getAccount = () => {
+const getAccount = (accountName) => {
     const accountJSON = fs.readFileSync(
         `accounts/${accountName}.json`,
         {
@@ -109,15 +109,15 @@ const handleDeposit = () => {
             inquirer.prompt([
                 {
                     name: 'amount',
-                    message: "Amount to be cashed: "
+                    message: "Amount to be cashed:"
                 }
             ])
-                .then((answer) => {
-                    const amount = answer['amount'];
+                .then((ans) => {   
+                    const amount = ans['amount'];
                     addAmount(accountName, amount);
                 })
                 .catch((err) => {
-                    console.log("[ERROR] " + err);
+                    console.log("[ERROR1] " + err);
                 })
                 .finally(() => {
                     operation();
@@ -125,7 +125,7 @@ const handleDeposit = () => {
 
         })
         .catch((err) => {
-            console.log("[ERROR] " + err);
+            console.log("[ERROR2] " + err);
         })
 }
 
