@@ -92,6 +92,31 @@ const handleCreateAccount = () => {
     buildAccount();
 }
 
+const handleBalanceCheck = () => {
+    inquirer.prompt([
+        {
+            name: 'accountName',
+            message: "Account's name: "
+        }
+    ])
+    .then((answer) => {
+        const accountName = answer['accountName'];
+
+        if (!verifyAccountExistence(accountName)) {
+            return handleBalanceCheck();
+        }
+
+        const accountData = getAccount(accountName);
+
+        console.log(chalk.bgBlue.black(`Account's balance: $${accountData.balance}`));
+
+        operation();
+    })
+    .catch((err) => {
+        console.log(['[ERROR3] ' + err]);
+    })
+}
+
 const handleDeposit = () => {
     inquirer.prompt([
         {
@@ -152,7 +177,7 @@ const operation = () => {
                     handleCreateAccount();
                     break;
                 case 'Check balance':
-                    createAccount();
+                    handleBalanceCheck();
                     break;
                 case 'Deposit':
                     handleDeposit();
